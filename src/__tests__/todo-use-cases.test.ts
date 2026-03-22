@@ -1,12 +1,20 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { InMemoryTodoRepository } from '../adapters/outbound/in-memory-todo-repository'
+import { describe, it, expect, beforeAll, beforeEach } from 'vitest'
+import { env } from 'cloudflare:test'
+import { D1TodoRepository } from '../adapters/outbound/d1-todo-repository'
 import { listTodos, createTodo, toggleTodo, deleteTodo } from '../application/todo-use-cases'
 
-describe('todo use cases', () => {
-  let repo: InMemoryTodoRepository
+beforeAll(async () => {
+  await env.DB.prepare(
+    `CREATE TABLE IF NOT EXISTS todos (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, completed INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT (datetime('now')))`
+  ).run()
+})
 
-  beforeEach(() => {
-    repo = new InMemoryTodoRepository()
+describe('todo use cases', () => {
+  let repo: D1TodoRepository
+
+  beforeEach(async () => {
+    await env.DB.exec('DELETE FROM todos')
+    repo = new D1TodoRepository(env.DB)
   })
 
   it('空の状態ではtodoが0件', async () => {
