@@ -6,7 +6,7 @@ export class D1TodoRepository implements ITodoRepository {
 
   async findAll(): Promise<Todo[]> {
     const { results } = await this.db
-      .prepare('SELECT * FROM todos ORDER BY created_at DESC')
+      .prepare('SELECT * FROM todos ORDER BY created_at DESC, id DESC')
       .all<Todo>()
     return results
   }
