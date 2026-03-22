@@ -24,7 +24,7 @@ src/
 ├── application/         # ユースケース（外部依存なし）
 ├── adapters/
 │   ├── inbound/         # HTTPハンドラ（Hono）
-│   └── outbound/        # リポジトリ実装（D1 / InMemory）
+│   └── outbound/        # リポジトリ実装（D1）
 ├── __tests__/           # ユニットテスト
 └── index.ts             # エントリポイント（依存性の組み立てのみ）
 ```
@@ -37,11 +37,11 @@ src/
 | Application | `application/todo-use-cases.ts` | Domain のみ |
 | Inbound Adapter | `adapters/inbound/http-handler.ts` | Application + Domain |
 | Outbound Adapter | `adapters/outbound/d1-todo-repository.ts` | Domain |
-| Test Adapter | `adapters/outbound/in-memory-todo-repository.ts` | Domain |
 
 ## テスト方針
 
-- ユニットテストは `InMemoryTodoRepository` を使用。Cloudflare D1 不要で高速に動く
+- `@cloudflare/vitest-pool-workers` を使用し、Workers ランタイム上で Miniflare の D1 に対してテストを実行する
+- `cloudflare:test` の `env.DB` を通じて実際の `D1TodoRepository` をテストするため、本番と同じコードパスを検証できる
 - ユースケース (`application/`) のロジックを中心にテストする
 - 新しいユースケースを追加したら対応するテストも追加すること
 
@@ -57,4 +57,4 @@ src/
 - Framework: Hono
 - Database: Cloudflare D1 (SQLite)
 - Language: TypeScript
-- Test: Vitest
+- Test: Vitest + @cloudflare/vitest-pool-workers
